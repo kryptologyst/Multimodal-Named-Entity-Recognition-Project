@@ -1,0 +1,90 @@
+# Configuration for Multimodal NER Training
+
+# Model Configuration
+model:
+  name: "multimodal_ner"
+  text_encoder:
+    name: "bert-base-uncased"
+    max_length: 512
+    num_labels: 9  # BILOU tags for NER
+  
+  vision_encoder:
+    name: "openai/clip-vit-base-patch32"
+    image_size: 224
+  
+  fusion:
+    method: "cross_attention"  # late_fusion, early_fusion, cross_attention
+    hidden_size: 768
+    num_attention_heads: 12
+    dropout: 0.1
+
+# Training Configuration
+training:
+  batch_size: 16
+  learning_rate: 2e-5
+  num_epochs: 10
+  warmup_steps: 500
+  weight_decay: 0.01
+  gradient_clip_norm: 1.0
+  
+  # Mixed precision training
+  use_amp: true
+  
+  # Early stopping
+  patience: 3
+  min_delta: 0.001
+
+# Data Configuration
+data:
+  train_path: "data/annotations/train.json"
+  val_path: "data/annotations/val.json"
+  test_path: "data/annotations/test.json"
+  
+  # Data augmentation
+  augmentation:
+    text:
+      enabled: true
+      synonym_replacement: 0.1
+      random_insertion: 0.1
+    
+    image:
+      enabled: true
+      horizontal_flip: 0.5
+      rotation: 15
+      brightness: 0.2
+      contrast: 0.2
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - "token_f1"
+    - "entity_f1"
+    - "visual_grounding"
+    - "cross_modal_alignment"
+  
+  # Evaluation frequency
+  eval_steps: 500
+  save_steps: 1000
+
+# Logging and Checkpointing
+logging:
+  log_level: "INFO"
+  log_dir: "logs"
+  tensorboard: true
+  wandb:
+    enabled: false
+    project: "multimodal-ner"
+
+checkpointing:
+  save_dir: "checkpoints"
+  save_total_limit: 3
+  load_best_model_at_end: true
+
+# Device Configuration
+device:
+  auto_detect: true
+  fallback_order: ["cuda", "mps", "cpu"]
+  
+# Reproducibility
+seed: 42
+deterministic: true

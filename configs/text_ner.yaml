@@ -1,0 +1,69 @@
+# Text-only NER Configuration
+
+# Model Configuration
+model:
+  name: "text_ner"
+  encoder:
+    name: "bert-base-uncased"
+    max_length: 512
+    num_labels: 9  # BILOU tags for NER
+    dropout: 0.1
+
+# Training Configuration
+training:
+  batch_size: 32
+  learning_rate: 2e-5
+  num_epochs: 5
+  warmup_steps: 500
+  weight_decay: 0.01
+  gradient_clip_norm: 1.0
+  
+  # Mixed precision training
+  use_amp: true
+  
+  # Early stopping
+  patience: 3
+  min_delta: 0.001
+
+# Data Configuration
+data:
+  train_path: "data/annotations/train_text.json"
+  val_path: "data/annotations/val_text.json"
+  test_path: "data/annotations/test_text.json"
+  
+  # Data augmentation
+  augmentation:
+    text:
+      enabled: true
+      synonym_replacement: 0.1
+      random_insertion: 0.1
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - "token_f1"
+    - "entity_f1"
+  
+  # Evaluation frequency
+  eval_steps: 500
+  save_steps: 1000
+
+# Logging and Checkpointing
+logging:
+  log_level: "INFO"
+  log_dir: "logs"
+  tensorboard: true
+
+checkpointing:
+  save_dir: "checkpoints"
+  save_total_limit: 3
+  load_best_model_at_end: true
+
+# Device Configuration
+device:
+  auto_detect: true
+  fallback_order: ["cuda", "mps", "cpu"]
+  
+# Reproducibility
+seed: 42
+deterministic: true
